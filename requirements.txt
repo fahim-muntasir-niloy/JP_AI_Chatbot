@@ -1,0 +1,15 @@
+langchain==1.0.2
+langgraph==1.0.1
+google-genai==1.46.0
+python-dotenv==1.0.1
+rich==14.2.0
+supabase==2.22.2
+langchain-google-genai==3.0.0
+fastapi
+uvicorn
+pydantic
+psycopg2-binary
+langchain-postgres==0.0.16
+langchain-community 
+PyMuPDF
+langchain-text-splitters
