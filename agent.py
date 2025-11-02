@@ -10,7 +10,7 @@ agent = create_agent(
     model=llm,
     tools=[search_knowledgebase],
     system_prompt=system_prompt,
-    # checkpointer=InMemorySaver(),
+    checkpointer=InMemorySaver(),
     middleware=[],
     name="Japan AI Agent",
 )

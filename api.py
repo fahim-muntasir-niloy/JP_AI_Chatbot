@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from agent import agent
 from rich import print
+from uuid import uuid4
 
 load_dotenv()
 
@@ -22,15 +23,19 @@ app = FastAPI(
 
 class chatRequest(BaseModel):
     message: str
+    thread_id: str = str(uuid4())
 
 
 @app.post("/chat")
 async def chat_endpoint(request: chatRequest):
     user_message = request.message
+    thread_id = request.thread_id
 
-    response = agent.invoke(
+    print(f"Received message: {user_message} in thread: {thread_id}")
+
+    response = await agent.ainvoke(
         {"messages": [{"role": "user", "content": user_message}]},
-        # config={"configurable": {"thread_id": "1"}},
+        config={"configurable": {"thread_id": thread_id}},
     )
     print(response["messages"][-1].content)
     return {"response": response["messages"][-1].content}
@@ -39,4 +44,4 @@ async def chat_endpoint(request: chatRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=5500)
+    uvicorn.run("api:app", host="localhost", port=5500, reload=True)
