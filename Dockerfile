@@ -1,4 +1,21 @@
-# Use Python 3.12 as the base image
+# Stage 1: Build the frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy frontend package files
+COPY kireichat_-ai-japan-guide/package*.json ./
+
+# Install frontend dependencies
+RUN npm install
+
+# Copy frontend source code
+COPY kireichat_-ai-japan-guide/ ./
+
+# Build the frontend (outputs to dist/)
+RUN npm run build
+
+# Stage 2: Python backend with frontend static files
 FROM python:3.12-slim
 
 # Set working directory in the container
@@ -14,18 +31,20 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements file
 COPY requirements.txt .
 
-
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Copy the backend application code
 COPY . .
+
+# Copy built frontend files from the frontend builder stage
+COPY --from=frontend-builder /app/frontend/dist ./static
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 # Expose the port the app runs on
-EXPOSE 5500
+EXPOSE 80
 
 # Command to run the application
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "5500"]
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "80"]
