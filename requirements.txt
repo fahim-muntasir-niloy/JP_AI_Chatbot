@@ -13,4 +13,5 @@ langchain-postgres==0.0.16
 langchain-community 
 PyMuPDF
 langchain-text-splitters
-langchain-groq
+# langchain-groq
+langchain-anthropic==1.0.1

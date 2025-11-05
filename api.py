@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agent import agent
 from rich import print
@@ -16,8 +17,18 @@ os.environ["LANGSMITH_PROJECT"] = "japan-ai"
 
 app = FastAPI(
     title="Japan AI Chatbot API",
-    description="API for Japan AI Chatbot using LangChain and Google Gemini",
+    description="API for Japan AI Chatbot",
     version="1.0.0",
+)
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
