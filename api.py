@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from agent import agent
 from rich import print
@@ -52,9 +54,43 @@ async def chat_endpoint(request: chatRequest):
     return {"response": response["messages"][-1].content}
 
 
-@app.get("/")
-async def health_check():
-    return {"status": "ok"}
+# Mount static files directory (frontend build) - must be before catch-all route
+static_dir = "static"
+if os.path.exists(static_dir):
+    # Mount assets directory if it exists (Vite outputs to assets/)
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+    
+    # Serve index.html at root
+    @app.get("/")
+    async def serve_index():
+        index_path = os.path.join(static_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"status": "ok", "frontend": "index.html not found"}
+    
+    # Catch-all route for SPA routing (must be last, after all API routes)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Exclude API routes
+        if full_path in ["chat"] or full_path.startswith("chat/"):
+            return {"error": "Not found"}
+        
+        # Exclude assets (already handled by mount)
+        if full_path.startswith("assets/"):
+            return {"error": "Not found"}
+        
+        # Serve index.html for all other routes (SPA routing)
+        index_path = os.path.join(static_dir, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"error": "Frontend not found"}
+else:
+    # Fallback if static directory doesn't exist
+    @app.get("/")
+    async def health_check():
+        return {"status": "ok", "frontend": "not built"}
 
 if __name__ == "__main__":
     import uvicorn
