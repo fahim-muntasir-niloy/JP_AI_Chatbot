@@ -52,6 +52,10 @@ async def chat_endpoint(request: chatRequest):
     return {"response": response["messages"][-1].content}
 
 
+@app.get("/")
+async def health_check():
+    return {"status": "ok"}
+
 if __name__ == "__main__":
     import uvicorn
 
