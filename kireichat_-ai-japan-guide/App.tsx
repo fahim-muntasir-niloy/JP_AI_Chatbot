@@ -41,7 +41,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-[#1a1a1d] text-gray-200 font-sans h-screen">
+    <div className="bg-black text-gray-100 font-sans h-screen">
       <ChatInterface
         messages={messages}
         isLoading={isLoading}

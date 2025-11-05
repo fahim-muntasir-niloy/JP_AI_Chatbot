@@ -15,15 +15,22 @@ export const fetchAIResponse = async (prompt: string): Promise<string> => {
   
   // Return a canned response for demonstration
   if (prompt.toLowerCase().includes("hello")) {
-    return "Hello! I am Kirei. Ask me anything about Japan.";
+    return "Hello! Ask me about your business subsidies in Japan.";
   }
   // return MOCK_RESPONSE;
 
-  // --- REAL IMPLEMENTATION (EXAMPLE) ---
-  // Replace the mock implementation above with this block.
-  // Make sure your FastAPI backend is running and allows CORS from this frontend's origin.
+  // --- REAL IMPLEMENTATION ---
+  // Use relative path when served from same domain, or absolute URL for development
+  // In production (when served from backend), use relative path
+  // In development, use absolute URL
+  // Check if we're in development by checking if we're on localhost
+  const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  const apiUrl = isDev 
+    ? 'http://localhost:80/chat' 
+    : '/chat';
+  
   try {
-    const response = await fetch('http://localhost:5500/chat', { // Your backend URL
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
