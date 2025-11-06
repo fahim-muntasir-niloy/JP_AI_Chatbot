@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -8,6 +8,9 @@ from pydantic import BaseModel
 from agent import agent
 from rich import print
 from uuid import uuid4
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
@@ -22,6 +25,11 @@ app = FastAPI(
     description="API for Japan AI Chatbot",
     version="1.0.0",
 )
+
+# rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add CORS middleware to allow frontend requests
 app.add_middleware(
@@ -40,9 +48,10 @@ class chatRequest(BaseModel):
 
 
 @app.post("/chat")
-async def chat_endpoint(request: chatRequest):
-    user_message = request.message
-    thread_id = request.thread_id
+@limiter.limit("10/minute")
+async def chat_endpoint(request: Request, chat_request: chatRequest):
+    user_message = chat_request.message
+    thread_id = chat_request.thread_id
 
     print(f"Received message: {user_message} in thread: {thread_id}")
 
