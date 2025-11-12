@@ -15,14 +15,30 @@ agent = create_agent(
     name="Japan AI Agent",
 )
 
+# async def run_agent(input_text: str):
+#     async for chunk in agent.astream(
+#         {
+#             "messages": [
+#                 {"role": "user", "content": input_text}
+#             ]
+#         },
+#         stream_mode='updates',
+#         config={"configurable": {"thread_id": "test_thread_123"}},
+#     ):
+#         for step, data in chunk.items():
+#             yield step
+#             yield "------"
+#             yield data['messages'][-1].content_blocks
+#         #     print(f"step: {step}")
+#         #     print(f"content: {data['messages'][-1].content_blocks}")
+#         # yield chunk
+    
 
-if __name__ == "__main__":
-    response = agent.invoke(
-        {
-            "messages": [
-                {"role": "user", "content": "Tell me about Mount Fuji in Japanese."}
-            ]
-        },
-        # config={"configurable": {"thread_id": "1"}},
-    )
-    print(response)
+# if __name__ == "__main__":
+#     import asyncio
+    
+#     async def main():
+#         async for chunk in run_agent("Can I get subsidies for my computer Japan?"):
+#             print(chunk)
+    
+#     asyncio.run(main())
