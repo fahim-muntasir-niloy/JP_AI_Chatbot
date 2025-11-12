@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Japan Subsidy Bot</title>
+    <script>
+      // Prevent FOUC by setting theme class before initial render
+      try {
+        if (typeof localStorage !== 'undefined') {
+          if (localStorage.getItem('theme') === 'dark' || !('theme' in localStorage)) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
+        } else {
+          // Default to dark if localStorage is not available
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {
+        // If localStorage access fails, default to dark theme
+        document.documentElement.classList.add('dark')
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind CSS to use class-based dark mode
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-BXCHvFlb.js"></script>
+  </head>
+  <body class="bg-stone-50 dark:bg-zinc-950">
+    <div id="root"></div>
+  </body>
+</html>
