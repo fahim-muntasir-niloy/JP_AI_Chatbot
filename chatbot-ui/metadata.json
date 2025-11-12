@@ -1,0 +1,5 @@
+{
+  "name": "Japan Subsidy Bot",
+  "description": "A modern UI to visualize streaming responses from a Japan Subsidy Bot-based agent, including LLM tokens and tool calls with their outputs.",
+  "requestFramePermissions": []
+}
