@@ -11,9 +11,26 @@ docker build -t jp-bot .
 ```
 
 ### Run
+
+**Option 1: Using .env file (Recommended)**
 ```bash
-docker run -d -p 80:80 --name jp-bot-container jp-bot
+docker run -d -p 80:80 --env-file .env --name jp-bot-container jp-bot
 ```
+
+**Option 2: Using individual environment variables**
+```bash
+docker run -d -p 80:80 \
+  -e ANTHROPIC_API_KEY="your-key" \
+  -e GOOGLE_API_KEY="your-key" \
+  -e LANGCHAIN_API_KEY="your-key" \
+  --name jp-bot-container \
+  jp-bot
+```
+
+**Required Environment Variables:**
+- `ANTHROPIC_API_KEY` - For Claude LLM
+- `GOOGLE_API_KEY` - For Google embeddings
+- `LANGCHAIN_API_KEY` - For LangSmith tracing (optional)
 
 Access the application at:
 - **Frontend**: `http://your-server-ip/`
