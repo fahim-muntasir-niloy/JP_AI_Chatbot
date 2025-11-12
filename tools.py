@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from utils.pgvector_store import create_vector_store
 import asyncio
 import logging
+from rich import print
 
 load_dotenv()
 
@@ -19,9 +20,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@tool
-async def search_knowledgebase(query: str) -> str:
-    """Search the knowledgebase for relevant information."""
+@tool()
+async def search_knowledgebase(query: str) -> dict:
+    """Search the knowledgebase for relevant information and return JSON-serializable results.
+
+    The return value is a dict with a `results` key containing a list of
+    objects with `content` and `metadata` fields. This is easier to consume
+    by downstream callers (agents, API endpoints and the frontend).
+
+    Args:
+        query (str): The user query to search for.
+
+    Returns:
+        dict: {"results": [{"content": str, "metadata": dict}, ...]} or
+              {"error": "..."} on failure.
+    """
 
     try:
         # Initialize the vector store asynchronously
@@ -36,12 +49,16 @@ async def search_knowledgebase(query: str) -> str:
         # Retrieve top-k similar documents
         docs = await vector_store.asimilarity_search_by_vector(query_vector, k=4)
 
-        # Combine results into a single response
+        # Combine results into a single JSON-serializable response
         if not docs:
             logger.info("No relevant documents found for query: %s", query)
-            return "No relevant information found in the knowledgebase."
+            return {"results": []}
 
-        return "\n\n".join(doc.page_content for doc in docs)
+        results = [
+            {"content": doc.page_content, "metadata": doc.metadata} for doc in docs
+        ]
+
+        return {"results": results}
 
     except asyncio.CancelledError:
         logger.warning("Search task was cancelled.")
@@ -49,4 +66,11 @@ async def search_knowledgebase(query: str) -> str:
 
     except Exception as e:
         logger.exception("Error in search_knowledgebase: %s", str(e))
-        return f"An internal error occurred while searching the knowledgebase: {e}"
+        return {"error": f"An internal error occurred while searching the knowledgebase: {e}"}
+
+
+# if __name__ == "__main__":
+#     # For testing purposes
+#     query = "Is mobile phone subsidy available for low-income families?"
+#     result = asyncio.run(search_knowledgebase(query))
+#     print(result)
